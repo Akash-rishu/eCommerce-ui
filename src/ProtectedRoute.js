@@ -1,29 +1,37 @@
 import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, role }) => {
   const token = localStorage.getItem("token");
+  const userRole = localStorage.getItem("role");
 
-  // No token → redirect to login
+  // No token
   if (!token) {
     return <Navigate to="/" replace />;
   }
 
-  // Optional: check token expiry (basic)
+  // Check token validity
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
-    const isExpired = payload.exp * 1000 < Date.now();
 
-    if (isExpired) {
+    // Token expired
+    if (payload.exp * 1000 < Date.now()) {
       localStorage.removeItem("token");
+      localStorage.removeItem("role");
       return <Navigate to="/" replace />;
     }
+
   } catch (err) {
-    // Invalid token format
+    // Invalid token
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     return <Navigate to="/" replace />;
   }
 
-  // Allow access
+  // ROLE CHECK
+  if (role && userRole !== role) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return children;
 };
 

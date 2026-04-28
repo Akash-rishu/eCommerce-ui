@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
+import jwtDecode from "jwt-decode";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -12,14 +13,34 @@ function Login() {
 
         try {
             const res = await API.post("/auth/login", {
-                email: email,
-                password: password,
+                email,
+                password,
             });
 
-            localStorage.setItem("token", res.data.token);
+            const token = res.data.token;
+
+            // Save token
+            localStorage.setItem("token", token);
+
+            // Decode token to get role
+            const decoded = jwtDecode(token);
+
+            const role =
+                decoded.role || 
+                (decoded.authorities && decoded.authorities[0]) || 
+                "ROLE_USER";
+
+            localStorage.setItem("role", role);
+
             alert("Login Successful ✅");
 
-            navigate("/dashboard");
+            // Redirect based on role
+            if (role === "ROLE_ADMIN" || role === "ADMIN") {
+                navigate("/admin");
+            } else {
+                navigate("/dashboard");
+            }
+
         } catch (err) {
             alert("Invalid Credentials ❌");
         }

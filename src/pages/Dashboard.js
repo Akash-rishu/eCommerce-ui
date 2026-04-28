@@ -1,94 +1,127 @@
 import React, { useEffect, useState } from "react";
 import API from "../api";
-import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 function Dashboard() {
 
-  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+
+  const [categories, setCategories] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const navigate = useNavigate();
-
+  // FETCH DATA
   useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, []);
 
-    const fetchUsers = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        // Redirect if no token
-        if (!token) {
-          navigate("/");
-          return;
-        }
-
-        const res = await API.get("/users", {
-          headers: {
-            Authorization: "Bearer " + token
-          }
-        });
-
-        console.log("Response:", res.data);
-
-        // FIX: ensure always array
-        setUsers(Array.isArray(res.data) ? res.data : []);
-
-      } catch (err) {
-        if (err.response) {
-          setError("Unauthorized or error: " + err.response.status);
-
-          // Auto logout if token invalid
-          if (err.response.status === 401 || err.response.status === 403) {
-            localStorage.removeItem("token");
-            navigate("/");
-          }
-        } else {
-          setError("Server error");
-        }
-      } finally {
-        setLoading(false); // ✅ always stop loading
-      }
-    };
-
-    fetchUsers();
-
-  }, [navigate]);
-
-  // Logout
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+  const fetchProducts = async () => {
+    try {
+      const res = await API.get("/products");
+      const data = res.data.data || [];
+      setProducts(data);
+      setFiltered(data);
+    } catch (err) {
+      setError("Failed to fetch products");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await API.get("/categories");
+      setCategories(res.data.data || []);
+    } catch (err) {
+      console.log("Category error", err);
+    }
+  };
+
+  // FILTER LOGIC
+  useEffect(() => {
+    let result = products;
+
+    if (search) {
+      result = result.filter(p =>
+        p.productName.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (category) {
+      result = result.filter(p => p.category?.id == category);
+    }
+
+    setFiltered(result);
+
+  }, [search, category, products]);
+
   return (
-    <div style={{ textAlign: "center" }}>
-      <h2>Dashboard</h2>
+    <div>
 
-      <button onClick={logout}>Logout</button>
+      {/* NAVBAR */}
+      <Navbar />
 
-      <br /><br />
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <h2>Products</h2>
 
-      {loading && <p>Loading...</p>}
+        {/* SEARCH */}
+        <input
+          type="text"
+          placeholder="Search product..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <br /><br />
 
-      {/* Display Users Safely */}
-      {!loading && Array.isArray(users) && users.length > 0 && (
-        <div>
-          <h3>Users List</h3>
-          <ul>
-            {users.map((user, index) => (
-              <li key={index}>
-                {user.name} - {user.email}
-              </li>
+        {/* CATEGORY FILTER */}
+        <select onChange={(e) => setCategory(e.target.value)}>
+          <option value="">All Categories</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.id}>
+              {c.categoryName}
+            </option>
+          ))}
+        </select>
+
+        <br /><br />
+
+        {loading && <p>Loading...</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
+        {/* PRODUCTS */}
+        {!loading && filtered.length > 0 && (
+          <div>
+            {filtered.map(p => (
+              <div key={p.id} style={{
+                border: "1px solid #ccc",
+                margin: "10px",
+                padding: "10px"
+              }}>
+                <h3>{p.productName}</h3>
+                <p>{p.productDescription}</p>
+                <p>₹ {p.productPrice}</p>
+
+                {/* USER ONLY */}
+                {localStorage.getItem("role") === "ROLE_USER" && (
+                  <button>Add to Cart</button>
+                )}
+              </div>
             ))}
-          </ul>
-        </div>
-      )}
+          </div>
+        )}
 
-      {!loading && Array.isArray(users) && users.length === 0 && (
-        <p>No users found</p>
-      )}
+        {!loading && filtered.length === 0 && (
+          <p>No products found</p>
+        )}
+
+      </div>
     </div>
   );
 }
