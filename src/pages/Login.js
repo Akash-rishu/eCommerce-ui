@@ -22,32 +22,47 @@ function Login() {
             // Save token
             localStorage.setItem("token", token);
 
-            // Decode token to get role
+            // Decode JWT
             const decoded = jwtDecode(token);
+            console.log("JWT Payload:", decoded);
 
-            const role =
-                decoded.role || 
-                (decoded.authorities && decoded.authorities[0]) || 
-                "ROLE_USER";
+            let role = "";
 
+            // Extract role from all possible places
+            if (decoded.role) {
+                role = decoded.role;
+            } else if (decoded.authorities?.length > 0) {
+                role = decoded.authorities[0];
+            } else if (decoded.authority) {
+                role = decoded.authority;
+            }
+
+            // Normalize role (IMPORTANT)
+            if (role && role.toUpperCase().includes("ADMIN")) {
+                role = "ROLE_ADMIN";
+            } else {
+                role = "ROLE_USER";
+            }
+
+            console.log("FINAL ROLE:", role);
+
+            // Save role
             localStorage.setItem("role", role);
 
             alert("Login Successful ✅");
 
-            // Redirect based on role
-            if (role === "ROLE_ADMIN" || role === "ADMIN") {
-                navigate("/admin");
-            } else {
-                navigate("/dashboard");
-            }
+            // Force reload so Navbar updates immediately
+            window.location.href =
+                role === "ROLE_ADMIN" ? "/admin" : "/dashboard";
 
         } catch (err) {
+            console.error(err);
             alert("Invalid Credentials ❌");
         }
     };
 
     return (
-        <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: "center", marginTop: "50px" }}>
             <h2>Login</h2>
 
             <form onSubmit={handleLogin}>
@@ -72,7 +87,7 @@ function Login() {
                 <button type="submit">Login</button>
             </form>
 
-            <p>
+            <p style={{ marginTop: "10px" }}>
                 Don't have an account? <Link to="/register">Register</Link>
             </p>
         </div>
