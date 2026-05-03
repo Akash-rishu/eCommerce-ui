@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import logo from "../images/logo.png";
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [role, setRole] = useState("");
+  const [search, setSearch] = useState("");
 
-  // Always sync role from localStorage
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
 
-    // Normalize role
     if (storedRole === "ADMIN") {
       setRole("ROLE_ADMIN");
     } else if (storedRole === "USER") {
       setRole("ROLE_USER");
     } else {
-      setRole(storedRole);
+      setRole(storedRole || "");
     }
-  }, [location]); // update on route change
+  }, [location]);
 
   const logout = () => {
     localStorage.clear();
@@ -28,40 +28,47 @@ function Navbar() {
 
   const isActive = (path) => location.pathname === path;
 
+  // SEARCH FUNCTION
+  const handleSearch = () => {
+    if (search.trim()) {
+      navigate(`/products?search=${search}`);
+    }
+  };
+
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "12px 20px",
-      background: "#222",
-      color: "#fff"
-    }}>
+    <div style={styles.navbar}>
 
-      {/* LEFT */}
-      <div style={{ display: "flex", gap: "15px" }}>
+      {/* LOGO */}
+      <div style={styles.logoContainer} onClick={() => navigate("/home")}>
+        <img src={logo} alt="logo" style={styles.logo} />
 
-        <button
-          onClick={() => navigate("/dashboard")}
-          style={navStyle(isActive("/dashboard"))}
-        >
-          🏠 Home
-        </button>
-
-        <button
-          onClick={() => navigate("/products")}
-          style={navStyle(isActive("/products"))}
-        >
-          🛍 Products
-        </button>
-
+        <div>
+          <h3 style={{ margin: 0 }}>Wholesale Store</h3>
+          <span style={styles.tagline}>Smart Shopping Platform</span>
+        </div>
       </div>
 
-      {/* RIGHT */}
-      <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+      {/* SEARCH */}
+      <input
+        placeholder="Search for products, brands and more"
+        style={styles.search}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+      />
 
-        {/* ROLE DISPLAY */}
-        <span style={{ fontSize: "14px", color: "#ccc" }}>
+      {/* RIGHT */}
+      <div style={styles.right}>
+
+        <button
+          onClick={() => navigate("/home")}
+          style={navBtn(isActive("/home"))}
+        >
+          Home
+        </button>
+
+        {/* ROLE */}
+        <span style={styles.role}>
           {role === "ROLE_ADMIN"
             ? "👑 Admin"
             : role === "ROLE_USER"
@@ -71,7 +78,7 @@ function Navbar() {
 
         {/* USER */}
         {role === "ROLE_USER" && (
-          <button onClick={() => navigate("/cart")} style={btnStyle}>
+          <button onClick={() => navigate("/cart")} style={navBtn(false)}>
             🛒 Cart
           </button>
         )}
@@ -79,18 +86,18 @@ function Navbar() {
         {/* ADMIN */}
         {role === "ROLE_ADMIN" && (
           <>
-            <button onClick={() => navigate("/admin")} style={btnStyle}>
+            <button onClick={() => navigate("/admin")} style={navBtn(false)}>
               ⚙ Admin
             </button>
 
-            <button onClick={() => navigate("/add-product")} style={btnStyle}>
+            <button onClick={() => navigate("/add-product")} style={navBtn(false)}>
               ➕ Add Product
             </button>
           </>
         )}
 
         {/* LOGOUT */}
-        <button onClick={logout} style={{ ...btnStyle, background: "red" }}>
+        <button onClick={logout} style={styles.logout}>
           Logout
         </button>
 
@@ -99,23 +106,69 @@ function Navbar() {
   );
 }
 
-// Active style helper
-const navStyle = (active) => ({
-  background: active ? "#555" : "transparent",
-  color: "#fff",
+export default Navbar;
+
+const navBtn = (active) => ({
+  background: active ? "white" : "transparent",
+  color: active ? "#2874f0" : "white",
   border: "none",
+  padding: "6px 12px",
   cursor: "pointer",
-  padding: "6px 10px",
-  borderRadius: "5px"
+  borderRadius: "4px",
+  fontWeight: "bold"
 });
 
-const btnStyle = {
-  background: "#444",
-  color: "#fff",
-  border: "none",
-  padding: "6px 10px",
-  cursor: "pointer",
-  borderRadius: "5px"
-};
+const styles = {
+  navbar: {
+    background: "#2874f0",
+    padding: "10px 20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    color: "white"
+  },
 
-export default Navbar;
+  logoContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    cursor: "pointer"
+  },
+
+  logo: {
+    width: "40px",
+    height: "40px"
+  },
+
+  tagline: {
+    fontSize: "11px",
+    color: "#e0e0e0"
+  },
+
+  search: {
+    width: "40%",
+    padding: "8px",
+    borderRadius: "4px",
+    border: "none",
+    outline: "none"
+  },
+
+  right: {
+    display: "flex",
+    gap: "15px",
+    alignItems: "center"
+  },
+
+  role: {
+    fontSize: "14px"
+  },
+
+  logout: {
+    background: "#ff4d4d",
+    border: "none",
+    padding: "6px 12px",
+    color: "white",
+    borderRadius: "4px",
+    cursor: "pointer"
+  }
+};

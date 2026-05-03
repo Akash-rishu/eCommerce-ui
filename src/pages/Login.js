@@ -2,96 +2,200 @@ import React, { useState } from "react";
 import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
 import jwtDecode from "jwt-decode";
+import logo from "../images/logo.png";
 
 function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+  const navigate = useNavigate();
 
-        try {
-            const res = await API.post("/auth/login", {
-                email,
-                password,
-            });
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-            const token = res.data.token;
+    try {
+      setLoading(true);
+      setError("");
 
-            // Save token
-            localStorage.setItem("token", token);
+      const res = await API.post("/auth/login", {
+        email,
+        password,
+      });
 
-            // Decode JWT
-            const decoded = jwtDecode(token);
-            console.log("JWT Payload:", decoded);
+      const token = res.data.token;
 
-            let role = "";
+      // Save token
+      localStorage.setItem("token", token);
 
-            // Extract role from all possible places
-            if (decoded.role) {
-                role = decoded.role;
-            } else if (decoded.authorities?.length > 0) {
-                role = decoded.authorities[0];
-            } else if (decoded.authority) {
-                role = decoded.authority;
-            }
+      // Decode JWT
+      const decoded = jwtDecode(token);
 
-            // Normalize role (IMPORTANT)
-            if (role && role.toUpperCase().includes("ADMIN")) {
-                role = "ROLE_ADMIN";
-            } else {
-                role = "ROLE_USER";
-            }
+      let role = decoded.role || decoded.authorities?.[0];
 
-            console.log("FINAL ROLE:", role);
+      // Normalize role
+      role = role?.includes("ADMIN") ? "ROLE_ADMIN" : "ROLE_USER";
 
-            // Save role
-            localStorage.setItem("role", role);
+      localStorage.setItem("role", role);
 
-            alert("Login Successful ✅");
+      // Redirect
+      window.location.href =
+        role === "ROLE_ADMIN" ? "/admin" : "/products";
 
-            // Force reload so Navbar updates immediately
-            window.location.href =
-                role === "ROLE_ADMIN" ? "/admin" : "/dashboard";
+    } catch (err) {
+      setError("Invalid email or password ❌");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        } catch (err) {
-            console.error(err);
-            alert("Invalid Credentials ❌");
-        }
-    };
+  return (
+    <div style={styles.container}>
 
-    return (
-        <div style={{ textAlign: "center", marginTop: "50px" }}>
-            <h2>Login</h2>
+      {/* 🔥 LEFT SIDE */}
+      <div style={styles.left}>
+        <div style={styles.leftContent}>
 
-            <form onSubmit={handleLogin}>
-                <input
-                    type="email"
-                    placeholder="Enter Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <br /><br />
+          <img
+            src={logo}
+            alt="Wholesale Store Logo"
+            style={styles.logo}
+          />
 
-                <input
-                    type="password"
-                    placeholder="Enter Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <br /><br />
+          <h1>Wholesale Store</h1>
+          <p>Login to access your business account</p>
 
-                <button type="submit">Login</button>
-            </form>
-
-            <p style={{ marginTop: "10px" }}>
-                Don't have an account? <Link to="/register">Register</Link>
-            </p>
         </div>
-    );
+      </div>
+
+      {/* 🔥 RIGHT SIDE */}
+      <div style={styles.right}>
+
+        <div style={styles.card}>
+          <h2 style={{ marginBottom: "10px" }}>Welcome Back</h2>
+          <p style={{ color: "#777", marginBottom: "20px" }}>
+            Login to continue
+          </p>
+
+          {error && (
+            <p style={{ color: "red", marginBottom: "10px" }}>
+              {error}
+            </p>
+          )}
+
+          <form onSubmit={handleLogin}>
+
+            <input
+              style={styles.input}
+              type="email"
+              placeholder="Enter Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+
+            <input
+              style={styles.input}
+              type="password"
+              placeholder="Enter Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <button style={styles.button} disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
+
+          </form>
+
+          {/* 🔥 REGISTER LINK */}
+          <p style={{ marginTop: "15px", textAlign: "center" }}>
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              style={{
+                color: "#6a11cb",
+                fontWeight: "bold",
+                textDecoration: "none"
+              }}
+            >
+              Register
+            </Link>
+          </p>
+
+        </div>
+
+      </div>
+    </div>
+  );
 }
 
 export default Login;
+
+
+
+/* 🔥 STYLES */
+
+const styles = {
+  container: {
+    display: "flex",
+    height: "100vh",
+    fontFamily: "Arial, sans-serif",
+    background: "#f5f6fa"
+  },
+
+  left: {
+    flex: 1,
+    background: "linear-gradient(135deg, #6a11cb, #2575fc)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white"
+  },
+
+  leftContent: {
+    textAlign: "center"
+  },
+
+  logo: {
+    width: "80px",
+    marginBottom: "15px"
+  },
+
+  right: {
+    flex: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+
+  card: {
+    width: "350px",
+    padding: "30px",
+    background: "white",
+    borderRadius: "12px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.1)"
+  },
+
+  input: {
+    width: "100%",
+    padding: "12px",
+    marginBottom: "12px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    outline: "none"
+  },
+
+  button: {
+    width: "100%",
+    padding: "12px",
+    background: "#6a11cb",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    fontWeight: "bold",
+    cursor: "pointer"
+  }
+};

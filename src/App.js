@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import AdminRoute from "./AdminRoute";
 import Login from "./pages/Login";
+import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
@@ -10,6 +11,8 @@ import Unauthorized from "./pages/Unauthorized";
 import ProductList from "./pages/ProductList";
 import AddProduct from "./pages/AddProduct";
 import ProtectedRoute from "./ProtectedRoute";
+import Cart from "./pages/Cart";
+import ProductDetails from "./pages/ProductDetails";
 
 function App() {
   return (
@@ -30,6 +33,11 @@ function App() {
           }
         />
 
+        // CART
+        <Route path="/cart" 
+            element={<Cart />} 
+        />
+
         {/* ADMIN ROUTE */}
         <Route
           path="/admin"
@@ -38,6 +46,14 @@ function App() {
               <AdminPanel />
             </ProtectedRoute>
           }
+        />
+
+        // Product List
+        <Route path="/products" element={<ProductList />} />
+
+        // Product Details
+        <Route path="/product/:id" 
+          element={<ProductDetails />} 
         />
 
         <Route
@@ -57,6 +73,8 @@ function App() {
             </AdminRoute>
           }
         />
+
+        <Route path="/home" element={<Home />} />
 
         {/* UNAUTHORIZED */}
         <Route path="/unauthorized" element={<Unauthorized />} />

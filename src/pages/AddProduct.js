@@ -16,8 +16,10 @@ function AddProduct() {
   });
 
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [image, setImage] = useState(null); // ✅ correct
 
-  // 🔥 Fetch categories
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -31,7 +33,6 @@ function AddProduct() {
     }
   };
 
-  // 🔥 Handle input
   const handleChange = (e) => {
     setProduct({
       ...product,
@@ -39,26 +40,28 @@ function AddProduct() {
     });
   };
 
-  // 🔥 Submit product
+  // 🔥 FIXED SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      setLoading(true);
+
       const token = localStorage.getItem("token");
 
-      const payload = {
-        productName: product.productName,
-        productDescription: product.productDescription,
-        productPrice: product.productPrice,
-        stock: product.stock,
-        category: {
-          id: product.categoryId
-        }
-      };
+      const formData = new FormData();
 
-      await API.post("/products", payload, {
+      formData.append("productName", product.productName);
+      formData.append("productDescription", product.productDescription);
+      formData.append("productPrice", product.productPrice);
+      formData.append("stock", product.stock);
+      formData.append("categoryId", product.categoryId);
+      formData.append("image", image); // ✅ FIXED
+
+      await API.post("/products", formData, {
         headers: {
-          Authorization: "Bearer " + token
+          Authorization: "Bearer " + token,
+          "Content-Type": "multipart/form-data"
         }
       });
 
@@ -67,57 +70,94 @@ function AddProduct() {
 
     } catch (err) {
       console.error(err);
-      alert("Failed to add product ❌");
+      setError("Failed to add product ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div style={{ background: "#f1f3f6", minHeight: "100vh" }}>
 
       <Navbar />
 
-      <div style={{ textAlign: "center", marginTop: "20px" }}>
-        <h2>Add Product</h2>
+      <div style={{
+        maxWidth: "420px",
+        margin: "40px auto",
+        background: "white",
+        padding: "25px",
+        borderRadius: "10px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+      }}>
+
+        <h2 style={{ marginBottom: "20px" }}>Add Product</h2>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
 
           <input
+            style={inputStyle}
             type="text"
             name="productName"
             placeholder="Product Name"
+            value={product.productName}
             onChange={handleChange}
             required
           />
-          <br /><br />
 
           <input
+            style={inputStyle}
             type="text"
             name="productDescription"
             placeholder="Description"
+            value={product.productDescription}
             onChange={handleChange}
           />
-          <br /><br />
 
           <input
+            style={inputStyle}
             type="number"
             name="productPrice"
             placeholder="Price"
+            value={product.productPrice}
             onChange={handleChange}
             required
           />
-          <br /><br />
+
+          {/* IMAGE INPUT */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+          />
+
+          {/* 🔥 IMAGE PREVIEW (BONUS) */}
+          {image && (
+            <img
+              src={URL.createObjectURL(image)}
+              alt="preview"
+              style={{ width: "100px", margin: "10px 0" }}
+            />
+          )}
 
           <input
+            style={inputStyle}
             type="number"
             name="stock"
             placeholder="Stock"
+            value={product.stock}
             onChange={handleChange}
             required
           />
-          <br /><br />
 
-          {/* 🔥 Category Dropdown */}
-          <select name="categoryId" onChange={handleChange} required>
+          <select
+            style={inputStyle}
+            name="categoryId"
+            value={product.categoryId}
+            onChange={handleChange}
+            required
+          >
             <option value="">Select Category</option>
             {categories.map(c => (
               <option key={c.id} value={c.id}>
@@ -126,9 +166,20 @@ function AddProduct() {
             ))}
           </select>
 
-          <br /><br />
-
-          <button type="submit">Add Product</button>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "10px",
+              background: "#2874f0",
+              color: "white",
+              borderRadius: "5px",
+              marginTop: "10px"
+            }}
+          >
+            {loading ? "Adding..." : "Add Product"}
+          </button>
 
         </form>
       </div>
@@ -136,4 +187,67 @@ function AddProduct() {
   );
 }
 
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  marginBottom: "12px",
+  borderRadius: "5px",
+  border: "1px solid #ccc"
+};
+
 export default AddProduct;
+
+const styles = {
+  container: {
+    display: "flex",
+    gap: "40px",
+    padding: "40px",
+    background: "white",
+    margin: "20px"
+  },
+
+  imageBox: {
+    flex: 1,
+    textAlign: "center"
+  },
+
+  image: {
+    width: "300px",
+    height: "300px",
+    objectFit: "cover",
+    borderRadius: "10px"
+  },
+
+  details: {
+    flex: 2
+  },
+
+  price: {
+    color: "green",
+    fontSize: "22px",
+    fontWeight: "bold",
+    margin: "10px 0"
+  },
+
+  desc: {
+    color: "#555",
+    marginBottom: "15px"
+  },
+
+  qtyBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    margin: "15px 0"
+  },
+
+  cartBtn: {
+    background: "#ff9f00",
+    color: "white",
+    padding: "12px 20px",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "16px",
+    cursor: "pointer"
+  }
+};
