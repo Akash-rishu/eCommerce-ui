@@ -148,7 +148,7 @@ function Cart() {
             style={styles.checkoutBtn}
             onClick={() => navigate("/checkout")}
           >
-            Place Order
+            Checkout
           </button>
 
         </div>

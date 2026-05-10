@@ -1,29 +1,58 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route
+} from "react-router-dom";
 
 import AdminRoute from "./AdminRoute";
+import ProtectedRoute from "./ProtectedRoute";
+
 import Login from "./pages/Login";
-import Home from "./pages/Home";
 import Register from "./pages/Register";
+import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
 import Unauthorized from "./pages/Unauthorized";
+
 import ProductList from "./pages/ProductList";
-import AddProduct from "./pages/AddProduct";
-import ProtectedRoute from "./ProtectedRoute";
-import Cart from "./pages/Cart";
 import ProductDetails from "./pages/ProductDetails";
 
+import AddProduct from "./pages/AddProduct";
+import AdminProducts from "./pages/AdminProduct";
+import EditProduct from "./pages/EditProduct";
+
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+
+import AdminOrders from "./pages/AdminOrders";
+import AdminAnalytics from "./pages/AdminAnalytics";
+
 function App() {
+
   return (
+
     <BrowserRouter>
+
       <Routes>
 
-        {/* PUBLIC */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* PUBLIC ROUTES */}
+        <Route
+          path="/"
+          element={<Login />}
+        />
 
-        {/* USER ROUTE */}
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+
+        <Route
+          path="/home"
+          element={<Home />}
+        />
+
+        {/* USER DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -33,12 +62,47 @@ function App() {
           }
         />
 
-        // CART
-        <Route path="/cart" 
-            element={<Cart />} 
+        {/* PRODUCTS */}
+        <Route
+          path="/products"
+          element={
+            <ProtectedRoute>
+              <ProductList />
+            </ProtectedRoute>
+          }
         />
 
-        {/* ADMIN ROUTE */}
+        {/* PRODUCT DETAILS */}
+        <Route
+          path="/product/:id"
+          element={
+            <ProtectedRoute>
+              <ProductDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* CART */}
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* CHECKOUT */}
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ADMIN PANEL */}
         <Route
           path="/admin"
           element={
@@ -48,23 +112,7 @@ function App() {
           }
         />
 
-        // Product List
-        <Route path="/products" element={<ProductList />} />
-
-        // Product Details
-        <Route path="/product/:id" 
-          element={<ProductDetails />} 
-        />
-
-        <Route
-          path="/products"
-          element={
-            <ProtectedRoute>
-              <ProductList />
-            </ProtectedRoute>
-         }
-        />
-
+        {/* ADD PRODUCT */}
         <Route
           path="/add-product"
           element={
@@ -74,12 +122,54 @@ function App() {
           }
         />
 
-        <Route path="/home" element={<Home />} />
+        {/* ADMIN PRODUCTS */}
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <AdminProducts />
+            </AdminRoute>
+          }
+        />
+
+        {/* EDIT PRODUCT */}
+        <Route
+          path="/edit-product/:id"
+          element={
+            <AdminRoute>
+              <EditProduct />
+            </AdminRoute>
+          }
+        />
+
+        {/* ADMIN ORDERS */}
+        <Route
+          path="/admin/orders"
+          element={
+            <AdminRoute>
+              <AdminOrders />
+            </AdminRoute>
+          }
+        />
+
+        {/* ADMIN ANALYTICS */}
+        <Route
+          path="/admin/analytics"
+          element={
+            <AdminRoute>
+              <AdminAnalytics />
+            </AdminRoute>
+          }
+        />
 
         {/* UNAUTHORIZED */}
-        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route
+          path="/unauthorized"
+          element={<Unauthorized />}
+        />
 
       </Routes>
+
     </BrowserRouter>
   );
 }
