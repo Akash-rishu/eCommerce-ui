@@ -27,6 +27,7 @@ import Checkout from "./pages/Checkout";
 
 import AdminOrders from "./pages/AdminOrders";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import AddressPage from "./pages/AddressPage";
 
 function App() {
 
@@ -81,6 +82,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+          {/* ADDRESS */}
+          <Route
+              path="/address"
+              element={<AddressPage />}
+          />
 
         {/* CART */}
         <Route
