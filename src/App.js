@@ -7,27 +7,23 @@ import {
 
 import AdminRoute from "./AdminRoute";
 import ProtectedRoute from "./ProtectedRoute";
-
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
 import Unauthorized from "./pages/Unauthorized";
-
 import ProductList from "./pages/ProductList";
 import ProductDetails from "./pages/ProductDetails";
-
 import AddProduct from "./pages/AddProduct";
 import AdminProducts from "./pages/AdminProduct";
 import EditProduct from "./pages/EditProduct";
-
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-
 import AdminOrders from "./pages/AdminOrders";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AddressPage from "./pages/AddressPage";
+import MyOrders from "./pages/MyOrders";
 
 function App() {
 
@@ -41,6 +37,11 @@ function App() {
         <Route
           path="/"
           element={<Login />}
+        />
+
+        <Route
+            path="/my-orders"
+            element={<MyOrders />}
         />
 
         <Route

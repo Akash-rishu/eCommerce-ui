@@ -63,7 +63,7 @@ function AddressPage() {
     }
   };
 
-  // INPUT CHANGE
+  // HANDLE INPUT
   const handleChange =
     (e) => {
 
@@ -135,11 +135,11 @@ function AddressPage() {
       <div style={styles.header}>
 
         <h1 style={styles.heading}>
-          📍 Manage Addresses
+          📍 My Addresses
         </h1>
 
         <p style={styles.subHeading}>
-          Add and manage your delivery addresses
+          Manage your delivery addresses
         </p>
 
       </div>
@@ -149,9 +149,9 @@ function AddressPage() {
         {/* LEFT FORM */}
         <div style={styles.left}>
 
-          <div style={styles.card}>
+          <div style={styles.formCard}>
 
-            <h2 style={styles.cardTitle}>
+            <h2 style={styles.title}>
               Add New Address
             </h2>
 
@@ -271,7 +271,7 @@ function AddressPage() {
 
                 <div
                   key={a.id}
-                  style={styles.addressCard}
+                  style={styles.card}
                 >
 
                   <div style={styles.badge}>
@@ -371,7 +371,7 @@ const styles = {
     flex: 1
   },
 
-  card: {
+  formCard: {
     background: "white",
     padding: "30px",
     borderRadius: "20px",
@@ -379,7 +379,7 @@ const styles = {
       "0 4px 15px rgba(0,0,0,0.08)"
   },
 
-  cardTitle: {
+  title: {
     marginBottom: "25px"
   },
 
@@ -430,7 +430,7 @@ const styles = {
     marginBottom: "20px"
   },
 
-  addressCard: {
+  card: {
     background: "white",
     padding: "22px",
     borderRadius: "18px",

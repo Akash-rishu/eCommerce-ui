@@ -13,6 +13,8 @@ import {
   QRCodeCanvas
 } from "qrcode.react";
 
+import Navbar from "../components/Navbar";
+
 function Checkout() {
 
   const navigate =
@@ -22,9 +24,13 @@ function Checkout() {
     setCartItems] =
     useState([]);
 
-  const [address,
-    setAddress] =
-    useState("");
+  const [addresses,
+    setAddresses] =
+    useState([]);
+
+  const [selectedAddress,
+    setSelectedAddress] =
+    useState(null);
 
   const [paymentMethod,
     setPaymentMethod] =
@@ -38,16 +44,21 @@ function Checkout() {
     setLoading] =
     useState(false);
 
-  // YOUR REAL UPI ID
   const upiId =
     "9155868288-3@ybl";
 
-  // FETCH CART
+  // LOAD DATA
   useEffect(() => {
+
     fetchCart();
+
+    fetchAddresses();
+
   }, []);
 
-  const fetchCart = async () => {
+  // FETCH CART
+  const fetchCart =
+    async () => {
 
     try {
 
@@ -62,8 +73,7 @@ function Checkout() {
           {
             headers: {
               Authorization:
-                "Bearer "
-                + token
+                "Bearer " + token
             }
           }
         );
@@ -74,23 +84,65 @@ function Checkout() {
 
     } catch (error) {
 
-      console.log(
-        "Cart Error:",
-        error
-      );
+      console.log(error);
     }
   };
 
-  // PRICE CALCULATIONS
+  // FETCH ADDRESS
+  const fetchAddresses =
+    async () => {
+
+    try {
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      const res =
+        await API.get(
+          "/address",
+          {
+            headers: {
+              Authorization:
+                "Bearer " + token
+            }
+          }
+        );
+
+      setAddresses(
+        res.data
+      );
+
+      if (
+        res.data.length > 0
+      ) {
+
+        setSelectedAddress(
+          res.data[0]
+        );
+      }
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
+  // CALCULATIONS
   const subtotal =
     cartItems.reduce(
+
       (total, item) =>
+
         total +
+
         (
           item.product
             .productPrice *
           item.quantity
         ),
+
       0
     );
 
@@ -112,6 +164,7 @@ function Checkout() {
     );
 
   const totalAmount =
+
     subtotal -
     discount +
     deliveryCharge +
@@ -124,17 +177,17 @@ function Checkout() {
 
     try {
 
-      // ADDRESS CHECK
-      if (!address) {
+      if (
+        !selectedAddress
+      ) {
 
         alert(
-          "Please Enter Address"
+          "Please Add Address"
         );
 
         return;
       }
 
-      // EMPTY CART CHECK
       if (
         cartItems.length === 0
       ) {
@@ -146,7 +199,7 @@ function Checkout() {
         return;
       }
 
-      // SHOW QR
+      // UPI
       if (
         paymentMethod
         === "UPI"
@@ -165,18 +218,28 @@ function Checkout() {
         );
 
       const body = {
-        address,
+
+        address:
+
+          `${selectedAddress.houseNo},
+           ${selectedAddress.area},
+           ${selectedAddress.city},
+           ${selectedAddress.state}
+           - ${selectedAddress.pincode}`,
+
         paymentMethod
       };
 
       await API.post(
+
         "/orders/checkout",
+
         body,
+
         {
           headers: {
             Authorization:
-              "Bearer "
-              + token
+              "Bearer " + token
           }
         }
       );
@@ -185,15 +248,11 @@ function Checkout() {
         "Order Placed Successfully"
       );
 
-      navigate(
-        "/dashboard"
-      );
+      navigate("/dashboard");
 
     } catch (error) {
 
-      console.log(
-        error.response?.data
-      );
+      console.log(error);
 
       alert(
         error.response?.data
@@ -220,17 +279,27 @@ function Checkout() {
         );
 
       await API.post(
+
         "/orders/checkout",
+
         {
-          address,
+
+          address:
+
+            `${selectedAddress.houseNo},
+             ${selectedAddress.area},
+             ${selectedAddress.city},
+             ${selectedAddress.state}
+             - ${selectedAddress.pincode}`,
+
           paymentMethod:
             "UPI"
         },
+
         {
           headers: {
             Authorization:
-              "Bearer "
-              + token
+              "Bearer " + token
           }
         }
       );
@@ -241,15 +310,11 @@ function Checkout() {
 
       setShowQR(false);
 
-      navigate(
-        "/dashboard"
-      );
+      navigate("/dashboard");
 
     } catch (error) {
 
-      console.log(
-        error.response?.data
-      );
+      console.log(error);
 
       alert(
         error.response?.data
@@ -263,282 +328,263 @@ function Checkout() {
   };
 
   const upiLink =
+
 `upi://pay?pa=${upiId}&pn=AkashStore&am=${totalAmount}&cu=INR`;
 
   return (
 
-    <div style={styles.page}>
+    <div>
 
-      {/* LEFT */}
-      <div style={styles.left}>
+      <Navbar />
 
-        <h1 style={styles.heading}>
-          🛒 Secure Checkout
-        </h1>
+      <div style={styles.page}>
 
-        {/* ADDRESS */}
-        <div style={styles.card}>
+        {/* LEFT */}
+        <div style={styles.left}>
 
-          <h3>
-            Delivery Address
-          </h3>
+          <h1 style={styles.heading}>
+            🛒 Secure Checkout
+          </h1>
 
-          <textarea
-            placeholder="Enter Full Address"
-            value={address}
-            onChange={(e) =>
-              setAddress(
-                e.target.value
-              )
-            }
-            style={styles.textarea}
-          />
+          {/* ADDRESS */}
+          <div style={styles.card}>
 
-        </div>
+            <div style={styles.addressHeader}>
 
-        {/* PAYMENT */}
-        <div style={styles.card}>
+              <h2>
+                Delivery Address
+              </h2>
 
-          <h3>
-            Payment Method
-          </h3>
+              <button
+                style={styles.addBtn}
+                onClick={() =>
+                  navigate(
+                    "/address"
+                  )
+                }
+              >
+                + Add Address
+              </button>
 
-          <label
-            style={
-              styles.paymentLabel
-            }
-          >
+            </div>
 
-            <input
-              type="radio"
-              value="COD"
-              checked={
-                paymentMethod
-                === "COD"
-              }
-              onChange={(e) =>
-                setPaymentMethod(
-                  e.target.value
-                )
-              }
-            />
+            {
+              addresses.length > 0
+              ? (
 
-            Cash On Delivery
-
-          </label>
-
-          <label
-            style={
-              styles.paymentLabel
-            }
-          >
-
-            <input
-              type="radio"
-              value="UPI"
-              checked={
-                paymentMethod
-                === "UPI"
-              }
-              onChange={(e) =>
-                setPaymentMethod(
-                  e.target.value
-                )
-              }
-            />
-
-            UPI / GPay / PhonePe
-
-          </label>
-
-        </div>
-
-        {/* ORDER ITEMS */}
-        <div style={styles.card}>
-
-          <h3>
-            Order Items
-          </h3>
-
-          {
-            cartItems.length > 0
-            ? (
-
-              cartItems.map(
-                (item) => (
-
-                <div
-                  key={item.id}
-                  style={styles.item}
-                >
-
-                  <img
-                    src={`http://localhost:8080/images/${item.product.image}`}
-                    alt="product"
-                    style={styles.image}
-                    onError={(e) =>
-                      (
-                        e.target.src =
-                        "https://picsum.photos/200"
-                      )
-                    }
-                  />
+                addresses.map((a) => (
 
                   <div
+                    key={a.id}
+
                     style={
-                      styles.itemDetails
+
+                      selectedAddress?.id
+                      === a.id
+
+                      ? styles.selectedAddress
+
+                      : styles.addressCard
+                    }
+
+                    onClick={() =>
+                      setSelectedAddress(a)
                     }
                   >
 
-                    <h4>
-                      {
-                        item.product
-                          .productName
+                    <input
+                      type="radio"
+                      checked={
+                        selectedAddress?.id
+                        === a.id
                       }
-                    </h4>
+                      readOnly
+                    />
 
-                    <p>
-                      Quantity:
-                      {" "}
-                      {
-                        item.quantity
-                      }
-                    </p>
+                    <div>
 
-                    <p
-                      style={
-                        styles.price
-                      }
-                    >
-                      ₹
-                      {
-                        item.product
-                          .productPrice
-                      }
-                    </p>
+                      <h3>
+                        {a.fullName}
+                      </h3>
+
+                      <p>
+                        {a.houseNo},
+                        {" "}
+                        {a.area},
+                        {" "}
+                        {a.city},
+                        {" "}
+                        {a.state}
+                      </p>
+
+                      <p>
+                        {a.pincode}
+                      </p>
+
+                      <p>
+                        📞 {a.mobile}
+                      </p>
+
+                    </div>
 
                   </div>
+                ))
+
+              ) : (
+
+                <div style={styles.noAddress}>
+
+                  <h3>
+                    No Address Found
+                  </h3>
+
+                  <button
+                    style={styles.addBtn}
+                    onClick={() =>
+                      navigate(
+                        "/address"
+                      )
+                    }
+                  >
+                    Add Address
+                  </button>
 
                 </div>
-              ))
+              )
+            }
 
-            ) : (
+          </div>
 
-              <p>
-                No products in cart
-              </p>
-            )
-          }
+          {/* PAYMENT */}
+          <div style={styles.card}>
+
+            <h2>
+              Payment Method
+            </h2>
+
+            <label style={styles.paymentLabel}>
+
+              <input
+                type="radio"
+                value="COD"
+                checked={
+                  paymentMethod
+                  === "COD"
+                }
+                onChange={(e) =>
+                  setPaymentMethod(
+                    e.target.value
+                  )
+                }
+              />
+
+              Cash On Delivery
+
+            </label>
+
+            <label style={styles.paymentLabel}>
+
+              <input
+                type="radio"
+                value="UPI"
+                checked={
+                  paymentMethod
+                  === "UPI"
+                }
+                onChange={(e) =>
+                  setPaymentMethod(
+                    e.target.value
+                  )
+                }
+              />
+
+              UPI / GPay / PhonePe
+
+            </label>
+
+          </div>
 
         </div>
 
-      </div>
+        {/* RIGHT */}
+        <div style={styles.right}>
 
-      {/* RIGHT */}
-      <div style={styles.right}>
+          <div style={styles.summary}>
 
-        <div style={styles.summary}>
+            <h2>
+              🧾 Price Details
+            </h2>
 
-          <h2>
-            🧾 Price Details
-          </h2>
+            <div style={styles.row}>
+              <span>Subtotal</span>
+              <span>₹ {subtotal}</span>
+            </div>
 
-          <div style={styles.row}>
-            <span>
-              Subtotal
-            </span>
+            <div style={styles.row}>
+              <span>Discount</span>
 
-            <span>
-              ₹ {subtotal}
-            </span>
-          </div>
+              <span style={styles.green}>
+                - ₹ {discount}
+              </span>
+            </div>
 
-          <div style={styles.row}>
-            <span>
-              Discount
-            </span>
+            <div style={styles.row}>
+              <span>GST</span>
+              <span>₹ {gst}</span>
+            </div>
 
-            <span
-              style={
-                styles.green
-              }
+            <div style={styles.row}>
+              <span>Delivery</span>
+
+              <span>
+                ₹ {deliveryCharge}
+              </span>
+            </div>
+
+            <div style={styles.row}>
+              <span>Platform Fee</span>
+
+              <span>
+                ₹ {platformFee}
+              </span>
+            </div>
+
+            <hr />
+
+            <div style={styles.total}>
+              <span>Total</span>
+
+              <span>
+                ₹ {totalAmount}
+              </span>
+            </div>
+
+            <p style={styles.deliveryText}>
+              🚚 Estimated Delivery:
+              2-4 Days
+            </p>
+
+            <button
+              style={styles.button}
+              onClick={placeOrder}
+              disabled={loading}
             >
-              - ₹ {discount}
-            </span>
-          </div>
 
-          <div style={styles.row}>
-            <span>
-              GST (18%)
-            </span>
-
-            <span>
-              ₹ {gst}
-            </span>
-          </div>
-
-          <div style={styles.row}>
-            <span>
-              Delivery
-            </span>
-
-            <span>
-              ₹
               {
-                deliveryCharge
-              }
-            </span>
-          </div>
+                loading
+                ? "Processing..."
 
-          <div style={styles.row}>
-            <span>
-              Platform Fee
-            </span>
+                : paymentMethod
+                  === "UPI"
 
-            <span>
-              ₹
-              {
-                platformFee
-              }
-            </span>
-          </div>
-
-          <hr />
-
-          <div style={styles.total}>
-            <span>
-              Total
-            </span>
-
-            <span>
-              ₹
-              {
-                totalAmount
-              }
-            </span>
-          </div>
-
-          <p style={styles.deliveryText}>
-            Estimated Delivery:
-            2-4 Days
-          </p>
-
-          <button
-            style={styles.button}
-            onClick={placeOrder}
-            disabled={loading}
-          >
-
-            {
-              loading
-              ? "Processing..."
-              : paymentMethod
-                === "UPI"
                 ? "Proceed To Pay"
-                : "Place Order"
-            }
 
-          </button>
+                : "Place Order"
+              }
+
+            </button>
+
+          </div>
 
         </div>
 
@@ -548,15 +594,9 @@ function Checkout() {
       {
         showQR && (
 
-          <div
-            style={
-              styles.overlay
-            }
-          >
+          <div style={styles.overlay}>
 
-            <div
-              style={styles.qrBox}
-            >
+            <div style={styles.qrBox}>
 
               <h2>
                 Scan & Pay
@@ -567,20 +607,15 @@ function Checkout() {
                 size={250}
               />
 
-              <p
-                style={{
-                  marginTop:
-                    "20px"
-                }}
-              >
+              <p style={{
+                marginTop: "20px"
+              }}>
                 Scan using
                 GPay / PhonePe / Paytm
               </p>
 
               <button
-                style={
-                  styles.payBtn
-                }
+                style={styles.payBtn}
                 onClick={
                   completePayment
                 }
@@ -589,13 +624,9 @@ function Checkout() {
               </button>
 
               <button
-                style={
-                  styles.closeBtn
-                }
+                style={styles.closeBtn}
                 onClick={() =>
-                  setShowQR(
-                    false
-                  )
+                  setShowQR(false)
                 }
               >
                 Close
@@ -613,15 +644,17 @@ function Checkout() {
 
 export default Checkout;
 
-// STYLES
+// MODERN UI STYLES
 const styles = {
 
   page: {
     display: "flex",
-    gap: "25px",
-    padding: "25px",
-    background: "#f1f3f6",
-    minHeight: "100vh"
+    gap: "30px",
+    padding: "30px",
+    background:
+      "linear-gradient(to bottom,#eef2ff,#f8fafc)",
+    minHeight: "100vh",
+    fontFamily: "Arial"
   },
 
   left: {
@@ -633,128 +666,136 @@ const styles = {
   },
 
   heading: {
-    fontSize: "38px",
-    marginBottom: "20px",
-    fontWeight: "700"
+    fontSize: "42px",
+    fontWeight: "800",
+    marginBottom: "25px",
+    color: "#1e293b"
   },
 
   card: {
     background: "white",
-    padding: "25px",
-    borderRadius: "18px",
-    marginBottom: "20px",
+    padding: "28px",
+    borderRadius: "24px",
+    marginBottom: "24px",
     boxShadow:
-      "0 4px 14px rgba(0,0,0,0.08)"
+      "0 8px 30px rgba(0,0,0,0.08)"
   },
 
-  textarea: {
-    width: "100%",
-    minHeight: "130px",
-    resize: "vertical",
-    marginTop: "15px",
-    padding: "15px",
-    borderRadius: "12px",
+  addressHeader: {
+    display: "flex",
+    justifyContent:
+      "space-between",
+    alignItems: "center",
+    marginBottom: "20px"
+  },
+
+  addBtn: {
+    background:
+      "linear-gradient(135deg,#2563eb,#3b82f6)",
+    color: "white",
+    border: "none",
+    padding: "12px 18px",
+    borderRadius: "14px",
+    cursor: "pointer",
+    fontWeight: "700"
+  },
+
+  addressCard: {
+    display: "flex",
+    gap: "16px",
     border:
-      "1px solid #ddd",
-    fontSize: "15px",
-    outline: "none"
+      "1px solid #e2e8f0",
+    borderRadius: "18px",
+    padding: "18px",
+    marginBottom: "16px",
+    cursor: "pointer",
+    background: "#ffffff"
+  },
+
+  selectedAddress: {
+    display: "flex",
+    gap: "16px",
+    border:
+      "2px solid #2563eb",
+    borderRadius: "18px",
+    padding: "18px",
+    marginBottom: "16px",
+    cursor: "pointer",
+    background:
+      "linear-gradient(to right,#eff6ff,#dbeafe)"
   },
 
   paymentLabel: {
     display: "flex",
     alignItems: "center",
-    gap: "12px",
+    gap: "14px",
     marginTop: "18px",
-    fontSize: "17px",
-    background: "#f9fafb",
-    padding: "15px",
-    borderRadius: "12px",
+    background:
+      "linear-gradient(to right,#f8fafc,#f1f5f9)",
+    padding: "18px",
+    borderRadius: "16px",
     cursor: "pointer",
     border:
-      "1px solid #e5e7eb"
-  },
-
-  item: {
-    display: "flex",
-    gap: "15px",
-    marginTop: "20px",
-    paddingBottom: "15px",
-    borderBottom:
-      "1px solid #eee"
-  },
-
-  image: {
-    width: "110px",
-    height: "110px",
-    objectFit: "contain",
-    background: "#fff",
-    borderRadius: "12px",
-    padding: "5px"
-  },
-
-  itemDetails: {
-    flex: 1
-  },
-
-  price: {
-    color: "green",
-    fontWeight: "bold",
-    marginTop: "10px",
-    fontSize: "18px"
+      "1px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "600"
   },
 
   summary: {
     background: "white",
-    padding: "25px",
-    borderRadius: "18px",
+    padding: "30px",
+    borderRadius: "24px",
     position: "sticky",
     top: "20px",
     boxShadow:
-      "0 4px 14px rgba(0,0,0,0.08)"
+      "0 8px 30px rgba(0,0,0,0.08)"
   },
 
   row: {
     display: "flex",
     justifyContent:
       "space-between",
-    margin: "16px 0",
-    fontSize: "16px"
+    margin: "18px 0",
+    fontSize: "16px",
+    color: "#334155"
   },
 
   green: {
-    color: "green",
-    fontWeight: "600"
+    color: "#16a34a",
+    fontWeight: "700"
   },
 
   total: {
     display: "flex",
     justifyContent:
       "space-between",
-    fontSize: "28px",
-    fontWeight: "bold",
-    marginTop: "20px"
+    fontSize: "30px",
+    fontWeight: "800",
+    marginTop: "25px",
+    color: "#0f172a"
   },
 
   deliveryText: {
     marginTop: "18px",
     color: "#16a34a",
-    fontWeight: "600",
+    fontWeight: "700",
     textAlign: "center"
   },
 
   button: {
     width: "100%",
-    padding: "16px",
-    marginTop: "25px",
-    background: "#fb641b",
+    padding: "18px",
+    marginTop: "28px",
+    background:
+      "linear-gradient(135deg,#fb641b,#ff8c42)",
     color: "white",
     border: "none",
-    borderRadius: "12px",
+    borderRadius: "18px",
     cursor: "pointer",
     fontSize: "18px",
-    fontWeight: "700",
+    fontWeight: "800",
     boxShadow:
-      "0 6px 18px rgba(251,100,27,0.3)"
+      "0 8px 24px rgba(251,100,27,0.35)"
   },
 
   overlay: {
@@ -764,7 +805,7 @@ const styles = {
     width: "100%",
     height: "100%",
     background:
-      "rgba(0,0,0,0.6)",
+      "rgba(15,23,42,0.75)",
     display: "flex",
     justifyContent:
       "center",
@@ -774,33 +815,40 @@ const styles = {
 
   qrBox: {
     background: "white",
-    padding: "35px",
-    borderRadius: "22px",
+    padding: "40px",
+    borderRadius: "28px",
     textAlign: "center",
-    width: "340px"
+    width: "380px"
   },
 
   payBtn: {
     width: "100%",
-    padding: "14px",
-    marginTop: "25px",
-    background: "green",
+    padding: "15px",
+    marginTop: "28px",
+    background:
+      "linear-gradient(135deg,#16a34a,#22c55e)",
     color: "white",
     border: "none",
-    borderRadius: "12px",
+    borderRadius: "16px",
     cursor: "pointer",
-    fontWeight: "600"
+    fontWeight: "700"
   },
 
   closeBtn: {
     width: "100%",
-    padding: "14px",
+    padding: "15px",
     marginTop: "15px",
-    background: "#ef4444",
+    background:
+      "linear-gradient(135deg,#ef4444,#f87171)",
     color: "white",
     border: "none",
-    borderRadius: "12px",
+    borderRadius: "16px",
     cursor: "pointer",
-    fontWeight: "600"
+    fontWeight: "700"
+  },
+
+  noAddress: {
+    textAlign: "center",
+    padding: "30px"
   }
 };
