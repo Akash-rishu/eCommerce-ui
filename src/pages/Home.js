@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
+
 import API from "../api";
 
 function Home() {
@@ -29,7 +30,9 @@ function Home() {
       "Select Address"
     );
 
+  // =========================
   // LOAD
+  // =========================
   useEffect(() => {
 
     fetchProducts();
@@ -38,7 +41,9 @@ function Home() {
 
   }, []);
 
+  // =========================
   // FETCH PRODUCTS
+  // =========================
   const fetchProducts =
     async () => {
 
@@ -52,9 +57,10 @@ function Home() {
       setProducts(
 
         res.data.data ||
-        res.data ||
-        []
 
+        res.data ||
+
+        []
       );
 
     } catch (err) {
@@ -67,7 +73,9 @@ function Home() {
     }
   };
 
+  // =========================
   // FETCH ADDRESS
+  // =========================
   const fetchAddress =
     async () => {
 
@@ -86,8 +94,7 @@ function Home() {
           {
             headers: {
               Authorization:
-                "Bearer "
-                + token
+                "Bearer " + token
             }
           }
         );
@@ -102,9 +109,8 @@ function Home() {
         setLocation(
 
           `${a.city},
-           ${a.state}
-           - ${a.pincode}`
-
+          ${a.state}
+          - ${a.pincode}`
         );
       }
 
@@ -116,110 +122,47 @@ function Home() {
 
   return (
 
-    <div style={styles.container}>
+    <div style={styles.page}>
 
       <Navbar />
 
-      {/* DELIVERY BAR */}
-      <div style={styles.deliveryBar}>
-
-        <div>
-
-          <p style={styles.deliveryLabel}>
-            Deliver To
-          </p>
-
-          <h3 style={styles.deliveryLocation}>
-            📍 {location}
-          </h3>
-
-        </div>
-
-        <button
-          style={styles.changeBtn}
-          onClick={() =>
-            navigate(
-              "/address"
-            )
-          }
-        >
-          Change
-        </button>
-
-      </div>
-
-      {/* CATEGORY BAR */}
-      <div style={styles.categoryBar}>
-
-        {[
-          "For You",
-          "Mobiles",
-          "Fashion",
-          "Electronics",
-          "Home",
-          "Appliances",
-          "Toys",
-          "Books",
-          "Beauty",
-          "Sports"
-        ].map((item, i) => (
-
-          <span
-            key={i}
-            style={styles.categoryItem}
-          >
-            {item}
-          </span>
-        ))}
-
-      </div>
-
-      {/* HERO SECTION */}
+      {/* HERO */}
       <div style={styles.heroSection}>
 
-        {/* MAIN BANNER */}
-        <div style={styles.mainBanner}>
+        <div style={styles.heroLeft}>
 
-          <div>
+          <h1 style={styles.heroTitle}>
+            Big Billion Days
+          </h1>
 
-            <h1 style={styles.bannerTitle}>
-              Big Summer Sale
-            </h1>
+          <p style={styles.heroText}>
+            Up To 80% OFF
+            On Premium Products
+          </p>
 
-            <p style={styles.bannerText}>
-              Up To 70% OFF
-            </p>
-
-            <button
-              style={styles.shopBtn}
-            >
-              Shop Now
-            </button>
-
-          </div>
+          <button
+            style={styles.heroBtn}
+          >
+            Shop Now
+          </button>
 
         </div>
 
-        {/* SIDE BANNERS */}
-        <div style={styles.sideBanners}>
+        <div style={styles.heroRight}>
 
-          <div style={styles.sideBanner}>
+          <div style={styles.offerCard}>
 
-            <h3>
-              Electronics
-            </h3>
+            <h3>📱 Mobiles</h3>
 
             <p>
-              Best Deals
+              Latest Smartphones
             </p>
 
           </div>
 
-          <div style={styles.sideBanner2}>
+          <div style={styles.offerCard2}>
 
-            <h3>
-              Fashion
-            </h3>
+            <h3>👕 Fashion</h3>
 
             <p>
               Trending Styles
@@ -231,129 +174,160 @@ function Home() {
 
       </div>
 
-      {/* PRODUCTS */}
-      <div style={styles.productSection}>
+      {/* ADDRESS */}
+      <div style={styles.addressBar}>
 
-        <div style={styles.headingRow}>
+        <div>
 
-          <h2 style={styles.heading}>
-            Top Products
-          </h2>
+          <p style={styles.deliveryText}>
+            Deliver To
+          </p>
 
-          <button
-            style={styles.viewAll}
-            onClick={() =>
-              navigate(
-                "/products"
-              )
-            }
-          >
-            View All
-          </button>
+          <h3 style={styles.location}>
+            📍 {location}
+          </h3>
 
         </div>
 
-        {
-          loading &&
-          <p>Loading...</p>
-        }
+        <button
+          style={styles.changeBtn}
+
+          onClick={() =>
+            navigate("/address")
+          }
+        >
+          Change
+        </button>
+
+      </div>
+
+      {/* CATEGORIES */}
+      <div style={styles.categories}>
 
         {
-          !loading &&
-          products.length === 0 && (
-            <p>No products found</p>
-          )
+          [
+            "📱 Mobiles",
+            "👕 Fashion",
+            "💻 Electronics",
+            "🏠 Home",
+            "🎧 Audio",
+            "⌚ Watches",
+            "🧸 Toys",
+            "📚 Books"
+          ].map((item, i) => (
+
+            <div
+              key={i}
+              style={styles.categoryCard}
+            >
+              {item}
+            </div>
+          ))
         }
 
-        <div style={styles.grid}>
+      </div>
 
-          {
-            products.map((p) => (
+      {/* HEADER */}
+      <div style={styles.sectionHeader}>
 
-              <div
-                key={p.id}
-                style={styles.card}
+        <h2 style={styles.heading}>
+          Trending Products
+        </h2>
 
-                onMouseEnter={(e) => {
+        <button
+          style={styles.viewAll}
 
-                  e.currentTarget.style.transform =
-                    "translateY(-8px)";
+          onClick={() =>
+            navigate("/products")
+          }
+        >
+          View All
+        </button>
 
-                  e.currentTarget.style.boxShadow =
-                    "0 12px 28px rgba(0,0,0,0.15)";
-                }}
+      </div>
 
-                onMouseLeave={(e) => {
+      {/* LOADING */}
+      {
+        loading && (
 
-                  e.currentTarget.style.transform =
-                    "translateY(0px)";
+          <p style={{
+            padding: "20px"
+          }}>
+            Loading...
+          </p>
+        )
+      }
 
-                  e.currentTarget.style.boxShadow =
-                    "0 6px 18px rgba(0,0,0,0.08)";
-                }}
-              >
+      {/* PRODUCTS */}
+      <div style={styles.grid}>
 
-                {/* IMAGE */}
-                <div
-                  style={
-                    styles.imageContainer
-                  }
-                >
+        {
+          products.map((p) => (
 
-                  <img
-                    src={`http://localhost:8080/images/${p.image}`}
-                    alt="product"
-                    style={styles.image}
+            <div
+              key={p.id}
 
-                    onMouseEnter={(e) => {
+              style={styles.card}
 
-                      e.currentTarget.style.transform =
-                        "scale(1.08)";
-                    }}
+              onMouseEnter={(e) => {
 
-                    onMouseLeave={(e) => {
+                e.currentTarget.style.transform =
+                  "translateY(-5px)";
+              }}
 
-                      e.currentTarget.style.transform =
-                        "scale(1)";
-                    }}
+              onMouseLeave={(e) => {
 
-                    onError={(e) =>
-                      (
-                        e.target.src =
-                        "https://picsum.photos/300"
-                      )
-                    }
-                  />
+                e.currentTarget.style.transform =
+                  "translateY(0px)";
+              }}
+            >
 
-                </div>
+              {/* IMAGE */}
+              <div style={styles.imageBox}>
 
-                {/* PRODUCT NAME */}
-                <h3 style={styles.productName}>
-                  {p.productName}
-                </h3>
+                <img
 
-                {/* PRICE */}
-                <p style={styles.price}>
-                  ₹ {p.productPrice}
-                </p>
+                  src={`http://localhost:8080/images/${p.image}`}
 
-                {/* BUTTON */}
-                <button
-                  style={styles.btn}
-                  onClick={() =>
-                    navigate(
-                      `/product/${p.id}`
-                    )
-                  }
-                >
-                  View Product
-                </button>
+                  alt={p.productName}
+
+                  style={styles.image}
+
+                  onError={(e) => {
+
+                    e.target.style.display =
+                      "none";
+                  }}
+                />
 
               </div>
-            ))
-          }
 
-        </div>
+              {/* NAME */}
+              <h3 style={styles.productName}>
+                {p.productName}
+              </h3>
+
+              {/* PRICE */}
+              <p style={styles.price}>
+                ₹ {p.productPrice}
+              </p>
+
+              {/* BUTTON */}
+              <button
+                style={styles.productBtn}
+
+                onClick={() =>
+                  navigate(
+                    `/product/${p.id}`
+                  )
+                }
+              >
+                View Product
+              </button>
+
+            </div>
+          ))
+        }
 
       </div>
 
@@ -363,36 +337,115 @@ function Home() {
 
 export default Home;
 
+// =========================
 // STYLES
+// =========================
 const styles = {
 
-  container: {
-    background: "#f1f5f9",
+  page: {
+    background: "#f1f3f6",
     minHeight: "100vh"
   },
 
-  deliveryBar: {
-    background: "white",
-    margin: "15px",
-    padding: "18px 25px",
+  heroSection: {
+    display: "grid",
+    gridTemplateColumns:
+      "2fr 1fr",
+    gap: "16px",
+    padding: "16px",
+    maxWidth: "1400px",
+    margin: "0 auto"
+  },
+
+  heroLeft: {
+    background:
+      "linear-gradient(135deg,#2563eb,#60a5fa)",
     borderRadius: "18px",
+    padding: "35px",
+    color: "white",
+    minHeight: "220px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    boxShadow:
+      "0 4px 12px rgba(0,0,0,0.08)"
+  },
+
+  heroTitle: {
+    fontSize: "38px",
+    fontWeight: "800",
+    marginBottom: "10px"
+  },
+
+  heroText: {
+    fontSize: "18px",
+    marginBottom: "18px"
+  },
+
+  heroBtn: {
+    width: "140px",
+    padding: "12px",
+    border: "none",
+    borderRadius: "10px",
+    background: "white",
+    color: "#2563eb",
+    fontWeight: "700",
+    cursor: "pointer",
+    fontSize: "14px"
+  },
+
+  heroRight: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px"
+  },
+
+  offerCard: {
+    flex: 1,
+    background:
+      "linear-gradient(135deg,#16a34a,#4ade80)",
+    borderRadius: "18px",
+    padding: "20px",
+    color: "white",
+    boxShadow:
+      "0 4px 12px rgba(0,0,0,0.08)"
+  },
+
+  offerCard2: {
+    flex: 1,
+    background:
+      "linear-gradient(135deg,#f97316,#fb923c)",
+    borderRadius: "18px",
+    padding: "20px",
+    color: "white",
+    boxShadow:
+      "0 4px 12px rgba(0,0,0,0.08)"
+  },
+
+  addressBar: {
+    background: "white",
+    margin: "16px auto",
+    padding: "16px 20px",
+    borderRadius: "16px",
     display: "flex",
     justifyContent:
       "space-between",
     alignItems: "center",
     boxShadow:
-      "0 4px 12px rgba(0,0,0,0.08)"
+      "0 2px 8px rgba(0,0,0,0.06)",
+    maxWidth: "1400px"
   },
 
-  deliveryLabel: {
+  deliveryText: {
     margin: 0,
     color: "#64748b",
     fontSize: "13px"
   },
 
-  deliveryLocation: {
-    marginTop: "5px",
-    color: "#0f172a"
+  location: {
+    marginTop: "4px",
+    color: "#0f172a",
+    fontSize: "18px"
   },
 
   changeBtn: {
@@ -401,114 +454,46 @@ const styles = {
     color: "white",
     border: "none",
     padding: "10px 18px",
-    borderRadius: "12px",
+    borderRadius: "10px",
     cursor: "pointer",
     fontWeight: "700"
   },
 
-  categoryBar: {
-    display: "flex",
-    gap: "22px",
-    padding: "15px 20px",
-    background: "white",
-    overflowX: "auto",
-    borderBottom:
-      "1px solid #e2e8f0"
-  },
-
-  categoryItem: {
-    fontSize: "15px",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-    fontWeight: "700",
-    color: "#334155"
-  },
-
-  heroSection: {
+  categories: {
     display: "grid",
     gridTemplateColumns:
-      "2fr 1fr",
-    gap: "15px",
-    padding: "15px"
+      "repeat(auto-fit,minmax(120px,1fr))",
+    gap: "14px",
+    padding: "0 16px 16px 16px",
+    maxWidth: "1400px",
+    margin: "0 auto"
   },
 
-  mainBanner: {
-    height: "320px",
-    background:
-      "linear-gradient(135deg,#2563eb,#60a5fa)",
-    borderRadius: "24px",
-    color: "white",
-    display: "flex",
-    alignItems: "center",
-    padding: "40px",
-    boxShadow:
-      "0 8px 24px rgba(37,99,235,0.25)"
-  },
-
-  bannerTitle: {
-    fontSize: "50px",
-    marginBottom: "10px"
-  },
-
-  bannerText: {
-    fontSize: "24px",
-    marginBottom: "20px"
-  },
-
-  shopBtn: {
+  categoryCard: {
     background: "white",
-    color: "#2563eb",
-    border: "none",
-    padding: "14px 24px",
+    padding: "16px",
     borderRadius: "14px",
+    textAlign: "center",
+    fontWeight: "600",
     cursor: "pointer",
-    fontWeight: "700",
-    fontSize: "16px"
-  },
-
-  sideBanners: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px"
-  },
-
-  sideBanner: {
-    flex: 1,
-    background:
-      "linear-gradient(135deg,#16a34a,#4ade80)",
-    borderRadius: "24px",
-    color: "white",
-    padding: "25px",
     boxShadow:
-      "0 8px 20px rgba(34,197,94,0.2)"
+      "0 2px 8px rgba(0,0,0,0.06)",
+    fontSize: "14px"
   },
 
-  sideBanner2: {
-    flex: 1,
-    background:
-      "linear-gradient(135deg,#f97316,#fb923c)",
-    borderRadius: "24px",
-    color: "white",
-    padding: "25px",
-    boxShadow:
-      "0 8px 20px rgba(249,115,22,0.2)"
-  },
-
-  productSection: {
-    padding: "20px"
-  },
-
-  headingRow: {
+  sectionHeader: {
     display: "flex",
     justifyContent:
       "space-between",
     alignItems: "center",
-    marginBottom: "25px"
+    padding: "10px 16px",
+    maxWidth: "1400px",
+    margin: "0 auto"
   },
 
   heading: {
-    fontSize: "34px",
-    fontWeight: "800",
+    fontSize: "28px",
+    fontWeight: "700",
     color: "#0f172a"
   },
 
@@ -517,8 +502,8 @@ const styles = {
       "linear-gradient(135deg,#2563eb,#3b82f6)",
     color: "white",
     border: "none",
-    padding: "12px 20px",
-    borderRadius: "12px",
+    padding: "10px 18px",
+    borderRadius: "10px",
     cursor: "pointer",
     fontWeight: "700"
   },
@@ -526,66 +511,66 @@ const styles = {
   grid: {
     display: "grid",
     gridTemplateColumns:
-      "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: "25px"
+      "repeat(auto-fit,minmax(220px,1fr))",
+    gap: "18px",
+    padding: "0 16px 30px 16px",
+    maxWidth: "1400px",
+    margin: "0 auto"
   },
 
   card: {
     background: "white",
-    padding: "20px",
-    borderRadius: "20px",
+    borderRadius: "16px",
+    padding: "16px",
     textAlign: "center",
-    boxShadow:
-      "0 6px 18px rgba(0,0,0,0.08)",
     transition: "0.3s",
-    cursor: "pointer"
+    cursor: "pointer",
+    boxShadow:
+      "0 2px 10px rgba(0,0,0,0.06)"
   },
 
-  imageContainer: {
+  imageBox: {
     width: "100%",
-    height: "250px",
+    height: "180px",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
-    background: "#fff",
-    borderRadius: "14px"
+    borderRadius: "12px",
+    background: "#fff"
   },
 
   image: {
     width: "100%",
     height: "100%",
-    objectFit: "contain",
-    transition: "0.3s"
+    objectFit: "contain"
   },
 
   productName: {
-    marginTop: "15px",
-    fontSize: "20px",
-    fontWeight: "700",
-    minHeight: "55px",
+    marginTop: "14px",
+    fontSize: "16px",
+    fontWeight: "600",
+    minHeight: "45px",
     color: "#1e293b"
   },
 
   price: {
     color: "#16a34a",
-    fontSize: "26px",
-    fontWeight: "800",
-    margin: "15px 0"
+    fontSize: "22px",
+    fontWeight: "700",
+    margin: "12px 0"
   },
 
-  btn: {
-    padding: "12px 22px",
+  productBtn: {
+    width: "100%",
+    padding: "12px",
+    border: "none",
+    borderRadius: "10px",
     background:
       "linear-gradient(135deg,#2563eb,#3b82f6)",
     color: "white",
-    border: "none",
-    borderRadius: "12px",
-    cursor: "pointer",
-    fontSize: "15px",
     fontWeight: "700",
-    marginTop: "10px",
-    boxShadow:
-      "0 4px 12px rgba(37,99,235,0.3)"
+    cursor: "pointer",
+    fontSize: "14px"
   }
 };

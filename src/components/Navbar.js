@@ -34,7 +34,11 @@ function Navbar() {
       "Select Address"
     );
 
-  // LOAD ROLE + ADDRESS
+  const [showDropdown,
+    setShowDropdown] =
+    useState(false);
+
+  // LOAD
   useEffect(() => {
 
     const storedRole =
@@ -69,7 +73,7 @@ function Navbar() {
 
   }, [location]);
 
-  // FETCH DEFAULT ADDRESS
+  // FETCH ADDRESS
   const fetchDefaultAddress =
     async () => {
 
@@ -101,9 +105,8 @@ function Navbar() {
         setLocationText(
 
           `${a.city},
-           ${a.state}
-           - ${a.pincode}`
-
+          ${a.state}
+          - ${a.pincode}`
         );
       }
 
@@ -120,12 +123,6 @@ function Navbar() {
 
     navigate("/");
   };
-
-  // ACTIVE PAGE
-  const isActive =
-    (path) =>
-      location.pathname
-      === path;
 
   // SEARCH
   const handleSearch =
@@ -176,35 +173,26 @@ function Navbar() {
 
         </div>
 
-        {/* LOCATION */}
+        {/* ADDRESS */}
         {
           role === "ROLE_USER"
           && (
 
             <div
-              style={
-                styles.locationBox
-              }
+              style={styles.locationBox}
               onClick={() =>
-                navigate(
-                  "/address"
-                )
+                navigate("/address")
               }
             >
 
-              <span
-                style={{
-                  fontSize:
-                    "13px"
-                }}
-              >
+              <span style={{
+                fontSize: "12px"
+              }}>
                 Deliver to
               </span>
 
               <strong>
-                📍
-                {" "}
-                {locationText}
+                📍 {locationText}
               </strong>
 
             </div>
@@ -218,13 +206,17 @@ function Navbar() {
 
         <input
           placeholder="Search for products, brands and more"
+
           style={styles.search}
+
           value={search}
+
           onChange={(e) =>
             setSearch(
               e.target.value
             )
           }
+
           onKeyDown={(e) =>
             e.key === "Enter"
             && handleSearch()
@@ -244,18 +236,15 @@ function Navbar() {
       <div style={styles.right}>
 
         {/* HOME */}
-        <button
+        <div
+          style={styles.menuItem}
           onClick={() =>
             navigate("/home")
           }
-          style={
-            navBtn(
-              isActive("/home")
-            )
-          }
         >
-          🏠 Home
-        </button>
+          🏠
+          <span>Home</span>
+        </div>
 
         {/* USER */}
         {
@@ -264,35 +253,35 @@ function Navbar() {
 
             <>
 
-              {/* CART */}
-              <button
+              <div
+                style={styles.menuItem}
                 onClick={() =>
                   navigate("/cart")
                 }
-                style={navBtn(false)}
               >
-                🛒 Cart
-              </button>
+                🛒
+                <span>Cart</span>
+              </div>
 
-              {/* MY ORDERS */}
-              <button
+              <div
+                style={styles.menuItem}
                 onClick={() =>
                   navigate("/my-orders")
                 }
-                style={navBtn(false)}
               >
-                📦 My Orders
-              </button>
+                📦
+                <span>Orders</span>
+              </div>
 
-              {/* ADDRESS */}
-              <button
+              <div
+                style={styles.menuItem}
                 onClick={() =>
                   navigate("/address")
                 }
-                style={navBtn(false)}
               >
-                📍 Address
-              </button>
+                📍
+                <span>Address</span>
+              </div>
 
             </>
           )
@@ -305,50 +294,120 @@ function Navbar() {
 
             <>
 
-              <button
+              <div
+                style={styles.menuItem}
                 onClick={() =>
                   navigate("/admin")
                 }
-                style={navBtn(false)}
               >
-                ⚙ Admin
-              </button>
+                ⚙
+                <span>Admin</span>
+              </div>
 
-              <button
+              <div
+                style={styles.menuItem}
                 onClick={() =>
                   navigate("/add-product")
                 }
-                style={navBtn(false)}
               >
-                ➕ Add Product
-              </button>
+                ➕
+                <span>Add Product</span>
+              </div>
 
             </>
           )
         }
 
-        {/* ROLE */}
-        <div style={styles.roleBox}>
+        {/* USER DROPDOWN */}
+        <div style={styles.userWrapper}>
+
+          <div
+            style={styles.userBtn}
+
+            onClick={() =>
+              setShowDropdown(
+                !showDropdown
+              )
+            }
+          >
+            👤 User
+          </div>
 
           {
-            role === "ROLE_ADMIN"
-            ? "👑 Admin"
+            showDropdown && (
 
-            : role === "ROLE_USER"
-            ? "👤 User"
+              <div style={styles.dropdown}>
 
-            : "Guest"
+                <div
+                  style={styles.dropdownItem}
+
+                  onClick={() => {
+
+                    navigate("/profile");
+
+                    setShowDropdown(false);
+                  }}
+                >
+                  👤 My Profile
+                </div>
+
+                <div
+                  style={styles.dropdownItem}
+
+                  onClick={() => {
+
+                    navigate("/my-orders");
+
+                    setShowDropdown(false);
+                  }}
+                >
+                  📦 Orders
+                </div>
+
+                <div
+                  style={styles.dropdownItem}
+
+                  onClick={() => {
+
+                    navigate("/cart");
+
+                    setShowDropdown(false);
+                  }}
+                >
+                  🛒 Cart
+                </div>
+
+                <div
+                  style={styles.dropdownItem}
+
+                  onClick={() => {
+
+                    navigate("/address");
+
+                    setShowDropdown(false);
+                  }}
+                >
+                  📍 Address
+                </div>
+
+                <div
+                  style={styles.dropdownItem}
+
+                  onClick={() => {
+
+                    logout();
+
+                    setShowDropdown(false);
+                  }}
+                >
+                  🚪 Logout
+                </div>
+
+              </div>
+            )
           }
 
         </div>
-
-        {/* LOGOUT */}
-        <button
-          onClick={logout}
-          style={styles.logout}
-        >
-          Logout
-        </button>
 
       </div>
 
@@ -357,35 +416,6 @@ function Navbar() {
 }
 
 export default Navbar;
-
-// NAV BUTTON
-const navBtn =
-(active) => ({
-
-  background:
-    active
-    ? "white"
-    : "transparent",
-
-  color:
-    active
-    ? "#2874f0"
-    : "white",
-
-  border: "none",
-
-  padding: "10px 16px",
-
-  cursor: "pointer",
-
-  borderRadius: "10px",
-
-  fontWeight: "600",
-
-  fontSize: "15px",
-
-  transition: "0.3s"
-});
 
 // STYLES
 const styles = {
@@ -413,7 +443,7 @@ const styles = {
     zIndex: 999,
 
     boxShadow:
-      "0 4px 18px rgba(0,0,0,0.15)"
+      "0 6px 20px rgba(0,0,0,0.15)"
   },
 
   left: {
@@ -477,10 +507,7 @@ const styles = {
     cursor: "pointer",
 
     backdropFilter:
-      "blur(8px)",
-
-    boxShadow:
-      "0 4px 10px rgba(0,0,0,0.08)"
+      "blur(8px)"
   },
 
   searchContainer: {
@@ -489,7 +516,7 @@ const styles = {
 
     alignItems: "center",
 
-    width: "38%",
+    width: "35%",
 
     background: "white",
 
@@ -498,14 +525,14 @@ const styles = {
     overflow: "hidden",
 
     boxShadow:
-      "0 4px 10px rgba(0,0,0,0.08)"
+      "0 4px 12px rgba(0,0,0,0.1)"
   },
 
   search: {
 
     flex: 1,
 
-    padding: "13px",
+    padding: "14px",
 
     border: "none",
 
@@ -520,11 +547,9 @@ const styles = {
 
     border: "none",
 
-    padding: "13px 18px",
+    padding: "14px 18px",
 
     cursor: "pointer",
-
-    fontSize: "16px",
 
     fontWeight: "700"
   },
@@ -533,43 +558,81 @@ const styles = {
 
     display: "flex",
 
-    gap: "14px",
+    alignItems: "center",
 
-    alignItems: "center"
+    gap: "20px"
   },
 
-  roleBox: {
+  menuItem: {
 
-    background:
-      "rgba(255,255,255,0.15)",
+    display: "flex",
 
-    padding: "9px 14px",
+    flexDirection: "column",
 
-    borderRadius: "12px",
+    alignItems: "center",
+
+    gap: "5px",
+
+    cursor: "pointer",
 
     fontWeight: "700",
 
     fontSize: "14px"
   },
 
-  logout: {
+  userWrapper: {
+
+    position: "relative"
+  },
+
+  userBtn: {
 
     background:
-      "linear-gradient(135deg,#ef4444,#f87171)",
+      "rgba(255,255,255,0.15)",
 
-    border: "none",
+    padding: "14px 18px",
 
-    padding: "10px 16px",
-
-    color: "white",
-
-    borderRadius: "12px",
+    borderRadius: "18px",
 
     cursor: "pointer",
 
     fontWeight: "700",
 
+    backdropFilter:
+      "blur(8px)"
+  },
+
+  dropdown: {
+
+    position: "absolute",
+
+    top: "70px",
+
+    right: 0,
+
+    width: "240px",
+
+    background: "white",
+
+    borderRadius: "20px",
+
+    overflow: "hidden",
+
     boxShadow:
-      "0 4px 10px rgba(239,68,68,0.25)"
+      "0 10px 35px rgba(0,0,0,0.18)"
+  },
+
+  dropdownItem: {
+
+    padding: "18px 20px",
+
+    cursor: "pointer",
+
+    color: "#1e293b",
+
+    fontWeight: "600",
+
+    borderBottom:
+      "1px solid #f1f5f9"
   }
 };

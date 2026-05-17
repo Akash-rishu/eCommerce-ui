@@ -1,29 +1,40 @@
 import React from "react";
+
 import {
   BrowserRouter,
   Routes,
   Route
 } from "react-router-dom";
 
+// ROUTE PROTECTION
 import AdminRoute from "./AdminRoute";
-import ProtectedRoute from "./ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+// AUTH
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+
+// USER PAGES
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import AdminPanel from "./pages/AdminPanel";
-import Unauthorized from "./pages/Unauthorized";
 import ProductList from "./pages/ProductList";
 import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import AddressPage from "./pages/AddressPage";
+import MyOrders from "./pages/MyOrders";
+import ProfilePage from "./pages/ProfilePage";
+
+// ADMIN PAGES
+import AdminPanel from "./pages/AdminPanel";
 import AddProduct from "./pages/AddProduct";
 import AdminProducts from "./pages/AdminProduct";
 import EditProduct from "./pages/EditProduct";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
 import AdminOrders from "./pages/AdminOrders";
 import AdminAnalytics from "./pages/AdminAnalytics";
-import AddressPage from "./pages/AddressPage";
-import MyOrders from "./pages/MyOrders";
+
+// COMMON
+import Unauthorized from "./pages/Unauthorized";
 
 function App() {
 
@@ -33,15 +44,13 @@ function App() {
 
       <Routes>
 
+        {/* ========================= */}
         {/* PUBLIC ROUTES */}
+        {/* ========================= */}
+
         <Route
           path="/"
           element={<Login />}
-        />
-
-        <Route
-            path="/my-orders"
-            element={<MyOrders />}
         />
 
         <Route
@@ -49,22 +58,28 @@ function App() {
           element={<Register />}
         />
 
+        {/* ========================= */}
+        {/* USER ROUTES */}
+        {/* ========================= */}
+
         <Route
           path="/home"
-          element={<Home />}
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
         />
 
-        {/* USER DASHBOARD */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute role="ROLE_USER">
+            <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
           }
         />
 
-        {/* PRODUCTS */}
         <Route
           path="/products"
           element={
@@ -74,7 +89,6 @@ function App() {
           }
         />
 
-        {/* PRODUCT DETAILS */}
         <Route
           path="/product/:id"
           element={
@@ -84,13 +98,6 @@ function App() {
           }
         />
 
-          {/* ADDRESS */}
-          <Route
-              path="/address"
-              element={<AddressPage />}
-          />
-
-        {/* CART */}
         <Route
           path="/cart"
           element={
@@ -100,7 +107,6 @@ function App() {
           }
         />
 
-        {/* CHECKOUT */}
         <Route
           path="/checkout"
           element={
@@ -110,17 +116,46 @@ function App() {
           }
         />
 
-        {/* ADMIN PANEL */}
         <Route
-          path="/admin"
+          path="/address"
           element={
-            <ProtectedRoute role="ROLE_ADMIN">
-              <AdminPanel />
+            <ProtectedRoute>
+              <AddressPage />
             </ProtectedRoute>
           }
         />
 
-        {/* ADD PRODUCT */}
+        <Route
+          path="/my-orders"
+          element={
+            <ProtectedRoute>
+              <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ========================= */}
+        {/* ADMIN ROUTES */}
+        {/* ========================= */}
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPanel />
+            </AdminRoute>
+          }
+        />
+
         <Route
           path="/add-product"
           element={
@@ -130,7 +165,6 @@ function App() {
           }
         />
 
-        {/* ADMIN PRODUCTS */}
         <Route
           path="/admin/products"
           element={
@@ -140,7 +174,6 @@ function App() {
           }
         />
 
-        {/* EDIT PRODUCT */}
         <Route
           path="/edit-product/:id"
           element={
@@ -150,7 +183,6 @@ function App() {
           }
         />
 
-        {/* ADMIN ORDERS */}
         <Route
           path="/admin/orders"
           element={
@@ -160,7 +192,6 @@ function App() {
           }
         />
 
-        {/* ADMIN ANALYTICS */}
         <Route
           path="/admin/analytics"
           element={
@@ -170,7 +201,10 @@ function App() {
           }
         />
 
+        {/* ========================= */}
         {/* UNAUTHORIZED */}
+        {/* ========================= */}
+
         <Route
           path="/unauthorized"
           element={<Unauthorized />}
